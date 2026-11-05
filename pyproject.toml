@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "saeflow"
+version = "0.1.0"
+description = "Triton kernels and activation caching for sparse-autoencoder interpretability"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "torch>=2.3",
+    "triton>=3.0",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+cache = ["transformer-lens>=2.0"]
+bench = ["sae-lens>=6.0", "matplotlib>=3.7"]
+test = ["pytest>=8", "transformer-lens>=2.0"]
+
+[project.urls]
+Repository = "https://github.com/iamartyaa/saeflow"
+
+[tool.setuptools.packages.find]
+include = ["saeflow*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
