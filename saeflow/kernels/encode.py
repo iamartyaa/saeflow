@@ -38,7 +38,7 @@ def _encode_kernel(
     x_ptr, w_ptr, b_enc_ptr, b_dec_ptr, thr_ptr, out_ptr, nnz_ptr,
     M, N, K,
     stride_xm, stride_xk, stride_wk, stride_wn, stride_om, stride_on,
-    ACT: tl.constexpr, COUNT: tl.constexpr, PRECISION: tl.constexpr,
+    ACT: tl.constexpr, COUNT: tl.constexpr, PRECISION: tl.constexpr, UPCAST_DOT: tl.constexpr,
     BLOCK_M: tl.constexpr, BLOCK_N: tl.constexpr, BLOCK_K: tl.constexpr, GROUP_M: tl.constexpr,
 ):
     # Grouped tile order: GROUP_M row-tiles share each W_enc column-tile while it is hot in L2.
@@ -70,6 +70,9 @@ def _encode_kernel(
             mask=mask_k[:, None] & mask_n[None, :], other=0.0,
         )
         x = (x.to(tl.float32) - b_dec[None, :].to(tl.float32)).to(w.dtype)
+        if UPCAST_DOT:
+            # The CPU interpreter's dot mishandles bf16; bf16 products are exact in fp32 anyway.
+            x, w = x.to(tl.float32), w.to(tl.float32)
         acc += tl.dot(x, w, input_precision=PRECISION)
 
     pre = acc + tl.load(b_enc_ptr + offs_n, mask=mask_n, other=0.0).to(tl.float32)[None, :]
@@ -124,7 +127,7 @@ def fused_encode(x, W_enc, b_enc, b_dec, threshold=None, activation="relu", *,
         M, N, K,
         x.stride(0), x.stride(1), W_enc.stride(0), W_enc.stride(1), out.stride(0), out.stride(1),
     )
-    meta = dict(ACT=ACTIVATIONS[activation], COUNT=row_nnz is not None, PRECISION=precision)
+    meta = dict(ACT=ACTIVATIONS[activation], COUNT=row_nnz is not None, PRECISION=precision, UPCAST_DOT=INTERPRET)
     if config is None and INTERPRET:
         config = INTERPRET_CONFIG
     if config is not None:

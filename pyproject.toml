@@ -16,9 +16,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-cache = ["transformer-lens>=2.0"]
+# Below 4: TransformerLens 4 moved to TransformerBridge and removed HookedTransformerConfig, which the cache tests build models with.
+cache = ["transformer-lens>=2.0,<4"]
 bench = ["sae-lens>=6.0", "matplotlib>=3.7"]
-test = ["pytest>=8", "transformer-lens>=2.0"]
+test = ["pytest>=8", "transformer-lens>=2.0,<4"]
 
 [project.urls]
 Repository = "https://github.com/iamartyaa/saeflow"
