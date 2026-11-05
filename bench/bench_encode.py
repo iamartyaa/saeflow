@@ -10,7 +10,7 @@ set for a target L0, where saeflow uses encode_sparse + sparse decode.
 import argparse
 
 import torch
-from common import DTYPE_NAMES, Results, parse_dtypes, device, env_info, oom_guard, parse_widths, saelens_sae, time_ms
+from common import DTYPE_NAMES, Results, parse_dtypes, device, env_info, free_memory, oom_guard, parse_widths, saelens_sae, time_ms
 
 import saeflow
 from saeflow.kernels import fused_encode
@@ -96,6 +96,8 @@ def main():
                                         config="", **{**row, "l0": round(l0, 1)})
 
                     oom_guard(run)
+                del sae, lens  # free before the next SAE so two never share the GPU
+                free_memory()
     print(f"wrote {out.path}")
 
 

@@ -12,7 +12,7 @@ closer to a worst case for the gather.
 import argparse
 
 import torch
-from common import DTYPE_NAMES, Results, parse_dtypes, device, env_info, oom_guard, parse_widths, saelens_sae, time_ms
+from common import DTYPE_NAMES, Results, parse_dtypes, device, env_info, free_memory, oom_guard, parse_widths, saelens_sae, time_ms
 
 from saeflow.kernels import dense_to_csr, sparse_decode
 from saeflow.reference import SAE
@@ -93,6 +93,8 @@ def main():
                                 out.add(op="to_csr", impl=impl, flops=0, bytes_moved=bytes_conv, ms=ms, **row)
 
                     oom_guard(run)
+            del sae, lens  # free before the next SAE so two never share the GPU
+            free_memory()
     print(f"wrote {out.path}")
 
 

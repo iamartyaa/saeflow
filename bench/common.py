@@ -163,11 +163,16 @@ def parse_widths(s):
     return [tuple(int(v) for v in w.split("x")) for w in s.split(",")]
 
 
+def free_memory():
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
 def oom_guard(fn):
     """Run fn(); on CUDA OOM free memory and return None so the sweep continues."""
     try:
         return fn()
     except torch.cuda.OutOfMemoryError:
-        torch.cuda.empty_cache()
+        free_memory()
         print("  skipped: out of memory")
         return None
