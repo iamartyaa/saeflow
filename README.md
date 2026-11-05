@@ -124,6 +124,9 @@ for batch in ActivationReader("cache/gpt2-l8").iter_batches("blocks.8.hook_resid
   `encode_sparse` on the GPU and only CSR features are written. At typical L0 that is
   a fraction of the dense activation size.
 
+The cache targets TransformerLens 2.x / 3.x `HookedTransformer` (`pip install -e ".[cache]"`).
+TransformerLens 4 moved to `TransformerBridge`. Support for that is on the roadmap.
+
 ## Running the tests
 
 The tests compare every kernel with the reference across fp32 / bf16 / fp16 and shapes
@@ -177,6 +180,7 @@ Results will be added after the first GPU run.
 - **SAELens integration:** take `sae_lens.SAE` objects directly (architecture and
   activation-normalisation handling), and read saeflow caches as an SAELens activation
   store.
+- **TransformerLens 4:** cache from `TransformerBridge` models as well as `HookedTransformer`.
 - **Backward kernels** for training SAEs on sparse features.
 
 ## License
