@@ -1,0 +1,31 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  cpu:
+    runs-on: ubuntu-latest
+    env:
+      TRITON_INTERPRET: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install triton
+          pip install -e ".[test,bench]"
+      - name: Versions
+        run: python -c "import torch, triton; print('torch', torch.__version__, 'triton', triton.__version__)"
+      - name: Tests (Triton interpreter on CPU)
+        run: pytest -q
+      - name: Benchmark smoke run
+        run: |
+          python bench/bench_encode.py --smoke
+          python bench/bench_decode.py --smoke
+          python bench/plot.py
