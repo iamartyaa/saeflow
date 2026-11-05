@@ -32,7 +32,7 @@ def _to_numpy(t):
 
 
 def _from_numpy(a, dtype):
-    t = torch.from_numpy(np.ascontiguousarray(a))
+    t = torch.from_numpy(np.array(a))  # copy out of the read-only memmap
     return t.view(dtype) if dtype == torch.bfloat16 else t
 
 
@@ -117,7 +117,7 @@ def cache_activations(model, tokens, hook_names, out_dir, *, batch_size=8, batch
                 a = acts[h].flatten(0, 1).flatten(1)  # [batch * pos, d]; per-head hooks are concatenated
                 if h in encoders:
                     sae = encoders[h]
-                    indptr, indices, values = encode_sparse(sae, a.to(sae.W_enc.dtype))
+                    indptr, indices, values = encode_sparse(sae, a.to(sae.W_enc.device, sae.W_enc.dtype))
                     parts[h].append((indptr.cpu(), indices.cpu(), values.to(dtype).cpu()))
                 else:
                     parts[h].append(a.to(dtype).cpu())
@@ -168,7 +168,7 @@ class ActivationReader:
         lo, hi = int(indptr[a]), int(indptr[b])
         return (
             torch.from_numpy(indptr[a:b + 1] - lo),
-            torch.from_numpy(np.ascontiguousarray(indices[lo:hi])),
+            torch.from_numpy(np.array(indices[lo:hi])),
             _from_numpy(values[lo:hi], self.dtype),
         )
 

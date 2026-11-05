@@ -88,12 +88,13 @@ def test_bfloat16_storage(model, tokens, tmp_path):
     assert torch.equal(got, expected(model, tokens, hook).bfloat16())
 
 
-def test_encode_on_the_fly_stores_sparse(model, tokens, tmp_path):
+def test_encode_on_the_fly_stores_sparse(model, tokens, tmp_path, device):
     hook = HOOKS[0]
-    sae = SAE(32, 96, "jumprelu")
+    sae = SAE(32, 96, "jumprelu", device=device)  # CPU model feeding a GPU SAE when one is present
     sae.threshold.fill_(0.5)
     cache_activations(model, tokens, [hook], tmp_path, batch_size=4, batches_per_shard=2, encoders={hook: sae})
     reader = ActivationReader(tmp_path)
     assert reader.manifest["hooks"][hook] == {"format": "csr", "d": 96}
     dense = torch.cat([csr_to_dense(*csr, 96) for csr in reader.iter_batches(hook, 13)])
-    torch.testing.assert_close(dense, sae.encode(expected(model, tokens, hook)), atol=1e-4, rtol=1e-4)
+    want = sae.encode(expected(model, tokens, hook).to(device)).cpu()
+    torch.testing.assert_close(dense, want, atol=1e-4, rtol=1e-4)
