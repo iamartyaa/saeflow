@@ -1,0 +1,9 @@
+{
+  "gpu": "Tesla T4",
+  "compute_capability": "7.5",
+  "cuda": "13.0",
+  "torch": "2.11.0+cu130",
+  "triton": "3.6.0",
+  "sae_lens": "6.55.0",
+  "python": "3.13.16"
+}

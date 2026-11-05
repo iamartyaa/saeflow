@@ -1,0 +1,7 @@
+gpu,op,impl,dtype,activation,d_in,d_sae,tokens,l0,ms,tflops,gbps,intensity,config
+Tesla T4,encode,saeflow,float16,relu,2304,16384,1024,,70.55565,1.096,1.61,679.521,"BLOCK_M: 32, BLOCK_N: 64, BLOCK_K: 32, GROUP_M: 8, num_warps: 2, num_ctas: 1, num_stages: 5, maxnreg: None"
+Tesla T4,encode,torch,float16,relu,2304,16384,1024,,3.7645,20.536,30.22,679.521,
+Tesla T4,encode,saelens,float16,relu,2304,16384,1024,,3.66755,21.079,31.02,679.521,
+Tesla T4,encode,saeflow,float16,relu,2304,16384,4096,,284.655,1.086,0.8,1352.807,"BLOCK_M: 32, BLOCK_N: 64, BLOCK_K: 32, GROUP_M: 8, num_warps: 2, num_ctas: 1, num_stages: 5, maxnreg: None"
+Tesla T4,encode,torch,float16,relu,2304,16384,4096,,16.70141,18.516,13.69,1352.807,
+Tesla T4,encode,saelens,float16,relu,2304,16384,4096,,17.56013,17.61,13.02,1352.807,

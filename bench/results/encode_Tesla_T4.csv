@@ -1,0 +1,65 @@
+gpu,op,impl,dtype,activation,d_in,d_sae,tokens,l0,ms,tflops,gbps,intensity,config
+Tesla T4,encode,saeflow,float32,relu,2304,16384,1024,,21.57926,3.583,10.54,339.76,"BLOCK_M: 64, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,relu,2304,16384,1024,,22.77115,3.395,9.99,339.76,
+Tesla T4,encode,saelens,float32,relu,2304,16384,1024,,22.45171,3.443,10.13,339.76,
+Tesla T4,encode,saeflow,float32,relu,2304,16384,4096,,89.48074,3.456,5.11,676.404,"BLOCK_M: 128, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,relu,2304,16384,4096,,94.7887,3.262,4.82,676.404,
+Tesla T4,encode,saelens,float32,relu,2304,16384,4096,,95.25076,3.247,4.8,676.404,
+Tesla T4,encode,saeflow,float32,relu,2304,16384,16384,,349.42337,3.54,3.94,899.122,"BLOCK_M: 128, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,relu,2304,16384,16384,,396.69257,3.118,3.47,899.122,
+Tesla T4,encode,saelens,float32,relu,2304,16384,16384,,394.31778,3.137,3.49,899.122,
+Tesla T4,encode,saeflow,float32,jumprelu,2304,16384,1024,,21.0419,3.674,10.81,339.76,"BLOCK_M: 64, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,jumprelu,2304,16384,1024,,23.47194,3.294,9.69,339.76,
+Tesla T4,encode,saelens,float32,jumprelu,2304,16384,1024,,24.17434,3.198,9.41,339.76,
+Tesla T4,forward,saeflow,float32,jumprelu,2304,16384,1024,63.5,22.81106,6.778,14.07,481.882,
+Tesla T4,forward,torch,float32,jumprelu,2304,16384,1024,63.5,39.76992,3.888,8.07,481.882,
+Tesla T4,forward,saelens,float32,jumprelu,2304,16384,1024,63.5,39.6469,3.9,8.09,481.882,
+Tesla T4,encode,saeflow,float32,jumprelu,2304,16384,4096,,87.56675,3.531,5.22,676.404,"BLOCK_M: 128, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,jumprelu,2304,16384,4096,,93.95232,3.291,4.87,676.404,
+Tesla T4,encode,saelens,float32,jumprelu,2304,16384,4096,,95.24278,3.247,4.8,676.404,
+Tesla T4,forward,saeflow,float32,jumprelu,2304,16384,4096,63.6,94.34672,6.555,4.0,1638.4,
+Tesla T4,forward,torch,float32,jumprelu,2304,16384,4096,63.6,172.97408,3.576,2.18,1638.4,
+Tesla T4,forward,saelens,float32,jumprelu,2304,16384,4096,63.6,174.31468,3.548,2.17,1638.4,
+Tesla T4,encode,saeflow,float32,jumprelu,2304,16384,16384,,351.66553,3.517,3.91,899.122,"BLOCK_M: 128, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,jumprelu,2304,16384,16384,,411.52719,3.006,3.34,899.122,
+Tesla T4,encode,saelens,float32,jumprelu,2304,16384,16384,,426.87918,2.898,3.22,899.122,
+Tesla T4,forward,saeflow,float32,jumprelu,2304,16384,16384,63.5,384.00613,6.442,1.57,4096.0,
+Tesla T4,forward,torch,float32,jumprelu,2304,16384,16384,63.5,724.69659,3.414,0.83,4096.0,
+Tesla T4,forward,saelens,float32,jumprelu,2304,16384,16384,63.5,759.13629,3.259,0.8,4096.0,
+Tesla T4,encode,saeflow,float32,relu,768,24576,1024,,9.89157,3.908,18.13,215.579,"BLOCK_M: 64, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,relu,768,24576,1024,,13.05784,2.96,13.73,215.579,
+Tesla T4,encode,saelens,float32,relu,768,24576,1024,,13.07792,2.956,13.71,215.579,
+Tesla T4,encode,saeflow,float32,relu,768,24576,4096,,40.3004,3.837,12.18,315.077,"BLOCK_M: 64, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,relu,768,24576,4096,,52.56883,2.941,9.34,315.077,
+Tesla T4,encode,saelens,float32,relu,768,24576,4096,,53.85629,2.871,9.11,315.077,
+Tesla T4,encode,saeflow,float32,relu,768,24576,16384,,160.51318,3.853,10.82,356.174,"BLOCK_M: 64, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,relu,768,24576,16384,,177.97005,3.475,9.76,356.174,
+Tesla T4,encode,saelens,float32,relu,768,24576,16384,,179.088,3.453,9.7,356.174,
+Tesla T4,encode,saeflow,float32,jumprelu,768,24576,1024,,9.90373,3.903,18.1,215.579,"BLOCK_M: 64, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,jumprelu,768,24576,1024,,14.44059,2.677,12.42,215.579,
+Tesla T4,encode,saelens,float32,jumprelu,768,24576,1024,,15.03099,2.572,11.93,215.579,
+Tesla T4,forward,saeflow,float32,jumprelu,768,24576,1024,64.9,11.28403,6.851,13.94,491.52,
+Tesla T4,forward,torch,float32,jumprelu,768,24576,1024,64.9,22.35392,3.458,7.04,491.52,
+Tesla T4,forward,saelens,float32,jumprelu,768,24576,1024,64.9,23.43438,3.299,6.71,491.52,
+Tesla T4,encode,saeflow,float32,jumprelu,768,24576,4096,,40.68874,3.8,12.06,315.077,"BLOCK_M: 64, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,jumprelu,768,24576,4096,,60.6705,2.549,8.09,315.077,
+Tesla T4,encode,saelens,float32,jumprelu,768,24576,4096,,62.57869,2.471,7.84,315.077,
+Tesla T4,forward,saeflow,float32,jumprelu,768,24576,4096,64.1,45.70419,6.766,3.85,1755.429,
+Tesla T4,forward,torch,float32,jumprelu,768,24576,4096,64.1,96.69241,3.198,1.82,1755.429,
+Tesla T4,forward,saelens,float32,jumprelu,768,24576,4096,64.1,98.69209,3.133,1.78,1755.429,
+Tesla T4,encode,saeflow,float32,jumprelu,768,24576,16384,,161.31482,3.834,10.76,356.174,"BLOCK_M: 64, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,jumprelu,768,24576,16384,,202.62912,3.052,8.57,356.174,
+Tesla T4,encode,saelens,float32,jumprelu,768,24576,16384,,213.43907,2.898,8.14,356.174,
+Tesla T4,forward,saeflow,float32,jumprelu,768,24576,16384,64.2,180.76659,6.843,1.39,4915.2,
+Tesla T4,forward,torch,float32,jumprelu,768,24576,16384,64.2,340.181,3.636,0.74,4915.2,
+Tesla T4,forward,saelens,float32,jumprelu,768,24576,16384,64.2,356.31903,3.471,0.71,4915.2,
+Tesla T4,encode,saeflow,float32,relu,2304,65536,1024,,88.47501,3.495,9.97,350.668,"BLOCK_M: 128, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,relu,2304,65536,1024,,92.15862,3.355,9.57,350.668,
+Tesla T4,encode,saelens,float32,relu,2304,65536,1024,,91.99001,3.362,9.59,350.668,
+Tesla T4,encode,saeflow,float32,relu,2304,65536,4096,,354.2413,3.492,4.84,721.056,"BLOCK_M: 128, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,relu,2304,65536,4096,,366.91748,3.371,4.68,721.056,
+Tesla T4,encode,saelens,float32,relu,2304,65536,4096,,366.40894,3.376,4.68,721.056,
+Tesla T4,encode,saeflow,float32,jumprelu,2304,65536,1024,,88.57478,3.491,9.96,350.668,"BLOCK_M: 128, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,jumprelu,2304,65536,1024,,96.90115,3.191,9.1,350.668,
+Tesla T4,forward,saeflow,float32,jumprelu,2304,65536,1024,61.6,91.29779,6.774,13.44,504.123,
+Tesla T4,forward,torch,float32,jumprelu,2304,65536,1024,61.6,173.75075,3.56,7.06,504.123,

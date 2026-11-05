@@ -1,0 +1,13 @@
+gpu,op,impl,dtype,activation,d_in,d_sae,tokens,l0,ms,tflops,gbps,intensity,config
+Tesla T4,encode,saeflow,float32,jumprelu,2304,65536,1024,,86.89696,3.559,10.15,350.668,"BLOCK_M: 128, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,jumprelu,2304,65536,1024,,92.5638,3.341,9.53,350.668,
+Tesla T4,encode,saelens,float32,jumprelu,2304,65536,1024,,92.64925,3.338,9.52,350.668,
+Tesla T4,forward,saeflow,float32,jumprelu,2304,65536,1024,63.5,90.20573,6.856,13.6,504.123,
+Tesla T4,forward,torch,float32,jumprelu,2304,65536,1024,63.5,173.46931,3.565,7.07,504.123,
+Tesla T4,forward,saelens,float32,jumprelu,2304,65536,1024,63.5,175.35385,3.527,7.0,504.123,
+Tesla T4,encode,saeflow,float32,jumprelu,2304,65536,4096,,355.54303,3.479,4.82,721.056,"BLOCK_M: 128, BLOCK_N: 128, BLOCK_K: 32, GROUP_M: 8, num_warps: 4, num_ctas: 1, num_stages: 4, maxnreg: None"
+Tesla T4,encode,torch,float32,jumprelu,2304,65536,4096,,385.14914,3.212,4.45,721.056,
+Tesla T4,encode,saelens,float32,jumprelu,2304,65536,4096,,389.1088,3.179,4.41,721.056,
+Tesla T4,forward,saeflow,float32,jumprelu,2304,65536,4096,63.6,361.28766,6.847,3.55,1927.529,
+Tesla T4,forward,torch,float32,jumprelu,2304,65536,4096,63.6,725.45679,3.41,1.77,1927.529,
+Tesla T4,forward,saelens,float32,jumprelu,2304,65536,4096,63.6,757.08624,3.268,1.7,1927.529,

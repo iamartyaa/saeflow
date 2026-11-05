@@ -71,13 +71,15 @@ the CSR form at `L0 = 64` is 6 MiB. Hot features (real SAEs have heavy-tailed fe
 frequencies) also stay in L2 across tokens. Where the kernel actually lands is what the
 roofline benchmark is for.
 
-**Dense -> CSR fast path.** `dense_to_csr` turns encoder output into CSR. The row
+**Dense -> CSR conversion.** `dense_to_csr` turns encoder output into CSR. The row
 offsets are a cumulative sum of the per-row counts, which `fused_encode` can produce for
 free. Then a compaction kernel, one program per row, scans the row in chunks,
 prefix-sums the nonzero mask with `tl.cumsum` to get each nonzero's output slot, and
 scatters indices and values there. The output is sorted by feature index (canonical
 CSR). The only host sync is the one that sizes the output. For TopK SAEs there is no
-compaction at all: `torch.topk` already gives fixed-width `(index, value)` pairs.
+compaction at all: `torch.topk` already gives fixed-width `(index, value)` pairs. On the
+first GPU run this kernel was slower than `torch.Tensor.to_sparse_csr` (see Benchmarks), so
+it is a correct baseline rather than a fast path yet.
 
 ### SAE-level API (`saeflow/ops.py`)
 
@@ -167,7 +169,61 @@ python bench/plot.py            # roofline + time-vs-tokens plots
 
 ## Benchmarks
 
-Results will be added after the first GPU run.
+First run: a **Tesla T4** on Colab (sm75, 15 GB), with CUDA 13.0, torch 2.11.0, Triton 3.6.0,
+SAELens 6.55.0 and Python 3.13. The raw rows are in `bench/results/*_Tesla_T4*.csv`, the
+environment is in `env_Tesla_T4.json`, and the plots are next to them. Every timing is a
+`triton.testing.do_bench` median, and each config was checked against the PyTorch
+reference before it was timed. `d_in = 2304` for the 16k and 65k widths, and `768` for 24k.
+
+On this GPU, every one of the 49 tests passes on the compiled kernels.
+
+**Full JumpReLU forward (encode, then decode, L0 ≈ 64), fp32.** saeflow's encode_sparse +
+sparse decode against the dense PyTorch reference and SAELens:
+
+| d_sae | tokens | saeflow | torch | SAELens | vs torch |
+|---|---|---|---|---|---|
+| 16384 | 16384 | 384 ms | 725 ms | 759 ms | 1.89x |
+| 24576 | 4096 | 45.7 ms | 96.7 ms | 98.7 ms | 2.12x |
+| 65536 | 4096 | 361 ms | 726 ms | 757 ms | 2.01x |
+
+**Sparse decode vs the dense decode**, at 4096 tokens:
+
+| dtype | d_sae | L0 | saeflow | torch CSR (cuSPARSE) | dense torch | dense SAELens |
+|---|---|---|---|---|---|---|
+| fp32 | 65536 | 32 | 4.55 ms | 5.16 ms | 343 ms | 344 ms |
+| fp32 | 65536 | 128 | 17.2 ms | 17.8 ms | 341 ms | 337 ms |
+| fp32 | 24576 | 64 | 2.35 ms | 2.58 ms | 34.9 ms | 35.4 ms |
+| fp16 | 65536 | 64 | 5.58 ms | 5.19 ms | 62.5 ms | 63.8 ms |
+| fp16 | 16384 | 128 | 9.43 ms | 7.61 ms | 12.5 ms | 12.6 ms |
+
+At 65,536 tokens with 65k features, the dense baselines ran out of memory (the feature
+matrix alone is 17 GB in fp32). The sparse decode ran in 72 ms at L0 = 32.
+
+What this run shows, and what it doesn't:
+
+- **The win is the sparse decode:**
+  - **Against the dense decode:** it is 6x to 75x faster in fp32, and 1.2x to 23x in fp16.
+    The gap grows with `d_sae / L0`, as the FLOP math above predicts.
+  - **Against cuSPARSE:** it is level with torch's CSR matmul, not better. It is 3% to 27%
+    faster in fp32, and anywhere from 20% faster to 23% slower in fp16.
+  - **Bandwidth:** it moves 200 to 440 GB/s of requested bytes against a 320 GB/s DRAM peak.
+    The figure counts bytes as if nothing were cached, so going over the peak means
+    repeated `W_dec` rows are being served from L2.
+- **The fp32 fused encode** is 3% to 54% faster than torch and SAELens. It runs at 3.5 to
+  3.9 TFLOP/s against the T4's 8.1 TFLOP/s fp32 peak. The largest gains come at the 24k
+  width, where the unfused epilogue's extra passes over `[tokens, d_sae]` cost the most
+  relative to the GEMM.
+- **The 16-bit encode is not usable on a T4.** In fp16, saeflow's encode reached 1.1 TFLOP/s
+  while cuBLAS reached 17.6 to 21 (16x to 19x slower). Triton dropped official Turing support
+  in 3.3. This result is consistent with its `tl.dot` not using the T4's tensor cores, so
+  16-bit encode numbers need an sm80+ GPU (A100, L4, H100). Only a small fp16 encode sample
+  was run (`encode_Tesla_T4_fp16.csv`).
+- **The dense -> CSR kernel is 1.6x to 1.8x slower than `to_sparse_csr`** (for example 30.8 ms
+  vs 17.6 ms in fp32 at 4096 x 65536). It reached 35 GB/s in fp32 and 19 GB/s in fp16.
+  Improving it is on the roadmap.
+
+![Roofline, T4 fp32](bench/results/roofline_Tesla_T4_float32.png)
+![Decode time vs tokens, T4](bench/results/decode_time_Tesla_T4.png)
 
 ## Roadmap
 
@@ -180,6 +236,10 @@ Results will be added after the first GPU run.
 - **SAELens integration:** take `sae_lens.SAE` objects directly (architecture and
   activation-normalisation handling), and read saeflow caches as an SAELens activation
   store.
+- **Faster dense -> CSR:** split each row across programs with a per-chunk prefix sum, or
+  emit the per-tile counts from the encoder epilogue. It currently trails
+  `to_sparse_csr` on the T4.
+- **sm80+ benchmarks:** bf16 numbers for the fused encode on an A100 or L4.
 - **TransformerLens 4:** cache from `TransformerBridge` models as well as `HookedTransformer`.
 - **Backward kernels** for training SAEs on sparse features.
 
