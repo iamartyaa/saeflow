@@ -10,7 +10,7 @@ set for a target L0, where saeflow uses encode_sparse + sparse decode.
 import argparse
 
 import torch
-from common import DTYPE_NAMES, Results, default_dtypes, device, env_info, oom_guard, parse_widths, saelens_sae, time_ms
+from common import DTYPE_NAMES, Results, parse_dtypes, device, env_info, oom_guard, parse_widths, saelens_sae, time_ms
 
 import saeflow
 from saeflow.kernels import fused_encode
@@ -41,6 +41,8 @@ def main():
     p.add_argument("--tokens", default="1024,4096,16384")
     p.add_argument("--activations", default="relu,jumprelu")
     p.add_argument("--l0", type=int, default=64, help="target L0 for the forward-pass benchmark")
+    p.add_argument("--dtypes", default="auto", help="'auto' or a list like float32,bfloat16")
+    p.add_argument("--tag", help="suffix for the results CSV, to keep several runs apart")
     p.add_argument("--smoke", action="store_true", help="tiny shapes, for CI under TRITON_INTERPRET=1")
     args = p.parse_args()
     if args.smoke:
@@ -48,9 +50,9 @@ def main():
         args.l0 = 8
 
     env_info()
-    out = Results("encode")
+    out = Results("encode", args.tag)
     for d_in, d_sae in parse_widths(args.widths):
-        for dtype in default_dtypes():
+        for dtype in parse_dtypes(args.dtypes):
             e = torch.finfo(dtype).bits // 8
             for activation in args.activations.split(","):
                 sae = make_sae(d_in, d_sae, activation, dtype, args.l0)
@@ -94,7 +96,7 @@ def main():
                                         config="", **{**row, "l0": round(l0, 1)})
 
                     oom_guard(run)
-    out.write()
+    print(f"wrote {out.path}")
 
 
 if __name__ == "__main__":

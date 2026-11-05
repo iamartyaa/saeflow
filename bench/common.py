@@ -54,8 +54,11 @@ def peaks(gpu, dtype_name, peak_tflops=None, peak_gbps=None):
     return peak_tflops, peak_gbps
 
 
-def default_dtypes():
-    """fp32 plus the GPU's native 16-bit type (bf16 needs sm80+; T4 gets fp16)."""
+def parse_dtypes(s):
+    """'auto' -> fp32 plus the GPU's native 16-bit type (bf16 needs sm80+; T4 gets fp16).
+    Otherwise a comma list such as 'float32,bfloat16'."""
+    if s != "auto":
+        return [getattr(torch, d) for d in s.split(",")]
     if not torch.cuda.is_available():
         return [torch.float32]
     half = torch.bfloat16 if torch.cuda.get_device_capability() >= (8, 0) else torch.float16
@@ -133,11 +136,12 @@ FIELDS = [
 
 
 class Results:
-    """Collects rows and writes them to bench/results/<name>_<gpu>.csv."""
+    """Writes rows to bench/results/<name>_<gpu>[_<tag>].csv as they come, so an
+    interrupted sweep keeps everything measured so far."""
 
-    def __init__(self, name):
+    def __init__(self, name, tag=None):
         RESULTS.mkdir(exist_ok=True)
-        self.path = RESULTS / f"{name}_{slug(gpu_name())}.csv"
+        self.path = RESULTS / f"{name}_{slug(gpu_name())}{'_' + tag if tag else ''}.csv"
         self.rows = []
 
     def add(self, *, flops, bytes_moved, ms, **row):
@@ -148,13 +152,10 @@ class Results:
         )
         self.rows.append(row)
         print("  ".join(f"{k}={row.get(k)}" for k in ("op", "impl", "dtype", "d_sae", "tokens", "l0", "ms", "tflops", "gbps")))
-
-    def write(self):
         with open(self.path, "w", newline="") as fh:
             w = csv.DictWriter(fh, FIELDS)
             w.writeheader()
             w.writerows(self.rows)
-        print(f"wrote {self.path}")
 
 
 def parse_widths(s):
